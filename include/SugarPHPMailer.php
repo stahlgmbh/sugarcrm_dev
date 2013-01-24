@@ -327,13 +327,25 @@ eoq;
 			} else {
 			    $mime_type = "image/".strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 			}
-		    $this->AddEmbeddedImage($file_location, $cid, $filename, 'base64', $mime_type);
+		    if (!$this->AttachmentExists($cid))
+		        $this->AddEmbeddedImage($file_location, $cid, $filename, 'base64', $mime_type);
 		    $i++;
         }
 		//replace references to cache with cid tag
 		$this->Body = preg_replace("|\"$regex|i",'"cid:',$this->Body);
 		// remove bad img line from outbound email
 		$this->Body = preg_replace('#<img[^>]+src[^=]*=\"\/([^>]*?[^>]*)>#sim', '', $this->Body);
+	}
+
+	public function AttachmentExists($filename) {
+		$result = false;
+		for($i = 0; $i < count($this->attachment); $i++) {
+			if($this->attachment[$i][1] == $filename) {
+				$result = true;
+				break;
+			}
+		}
+		return $result;
 	}
 
 	/**
